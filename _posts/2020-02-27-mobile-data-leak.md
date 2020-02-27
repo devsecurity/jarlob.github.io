@@ -9,8 +9,8 @@ cover:
 permalink:  /en/blog/mobile-data-leak
 ---
 
-⚠️*Guest post*
-> tl;dr: Ignorance of security issues by mobile operator partners leaks your phone number to malicious websites. Misconfigurations of mobile operators allow tracking you worldwide.
+> tl;dr: Ignorance of security issues by mobile operator partners leaks your phone number to malicious websites. Misconfigurations of mobile operators allow tracking you worldwide.  
+Try it your self - [Proof of Concept](#proof-of-concept).
 
 It all starts from curiosity... Have you ever seen a mobile app asking you to turn off WIFI and switch to mobile internet in order to use it?  
 There are at least few of them in Lithuania that offer login-less service if you are connected to the mobile internet:
@@ -22,11 +22,11 @@ An app for paying for city parking using your phone. The parking fee is added to
 * [Mobile wallet MoQ](https://play.google.com/store/apps/details?id=lt.momo.app&hl=en) - 
 An app for online payments, paying in-store and transferring money.
 
-## How does it work?
+### How does it work?
 
 It may sound crazy, but the mobile operator injects your identity into the outgoing HTTP request. When a third-party web server receives your request it already contains what is the needed to identify a mobile user in a special HTTP header.
 
-Let's check if that is true. First of all we need a server that would reflect back all HTTP headers it received from your browser. It is easy to write one by your own, but since we are lazy will use an already [existing one](http://postman-echo.com).
+Let's check if that is true. First of all we need a server that would reflect back all HTTP headers it received from your browser. It is easy to write one by your own, but since we are lazy we'll use an already [existing one](http://postman-echo.com).
 
 Connect a computer to your mobile device hotspot. Start a shell (command line) and run [curl](https://curl.haxx.se/) with the following arguments:
 ```
@@ -42,9 +42,9 @@ It returns the following response if you are not Tele2 user (showing just the im
   "x-forwarded-port": "80"
 }
 ```
-Nothing is suspicious here. This is because if configured correctly mobile operators inject headers only if the request is to white-listed partners. But not in Tele2 LT case! It injects `"x-tele2-subid: 10.■■■.■■■.■■■` to **any unencrypted HTTP request**!
+Nothing is suspicious here. This is because if configured correctly mobile operators inject headers only in a web request to white-listed partners. But not in Tele2 LT case! It injects `"x-tele2-subid: 10.■■■.■■■.■■■` to **any unencrypted HTTP request**!
 
-You may not see where the issue is... Yet it provides a [super cookie](https://en.wikipedia.org/wiki/HTTP_cookie#Other_uses) for any web site in the world. No matter if you switch the browser, clean cookies, use incognito mode - it uniquely identifies you as a user. While you may share it with other Tele2 users nearby (something to be proved) it still gives a lot of information for a web sites to track you.
+You may not see where the issue is... Yet it provides a [super cookie](https://en.wikipedia.org/wiki/HTTP_cookie#Other_uses) for any web site in the world. No matter if you switch the browser, clean cookies, use incognito mode - it uniquely identifies you as the same user. While you may share the same header with other Tele2 users nearby (something to be proved) it still gives a lot of information for a web sites to track you.
 
 Let's switch our mobile provider and spoof the requested web site:
 ```
@@ -62,8 +62,8 @@ In Telia case:
 ```
 "x-et-user-identity": "S9zdh■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■KUn3M"
 ```
-## Things get worse. Partners come into play.
-The host name we used above belongs to one of the white-listed partners. They simply have created a web service that returns back a phone number among other things when a request from a mobile internet user is received. Let's try it:
+### Things get worse. Partners come into play.
+The host name we used above belongs to one of the white-listed partners. The company have created a web service that returns back a phone number among other things when a request from a mobile internet user is received. Let's try it:
 ```
 curl --request POST http://mtis2.m-transportas.lt/api/token "Content-Type: application/x-www-form-urlencoded" -d "client_id=mticket&CountryCode=310&grant_type=mobileProvider"
 ```
@@ -85,21 +85,21 @@ The response:
 }
 ```
 The service is public and the first line leaks your phone number. How could it be exploited?  
-A malicious web page may run a javascript that calls mtis2.m-transportas.lt on your behalf. But if your provider is Tele2 it is even worse: `x-tele2-subid` gets injected into all unencrypted web site request. So a malicious site may call mtis2.m-transportas.lt with the leaked `x-tele2-subid` and retrieve the phone number on the server side. This way it is impossible to detect the abuse from the client side!
-## Proof of concept:
+A malicious web page may run a javascript that calls mtis2.m-transportas.lt on your behalf. But if your provider is Tele2 it is even worse: `x-tele2-subid` gets injected into all unencrypted web site requests. So a malicious site may call mtis2.m-transportas.lt with the leaked `x-tele2-subid` and retrieve the phone number on the server side. This way it is impossible to detect the abuse from the client!
+### Proof of concept:
 Works with any Lithuanian mobile provider. Turn off WIFI and click on the link in your mobile device.
 [http://www.devsecurity.eu/mobile-data-leak/](http://www.devsecurity.eu/mobile-data-leak/)
 
 ![Screenshot](mobile-data-leak-poc.png)
 
-## Does the injected header prove anything?
+### Does the injected header prove anything?
 So these white-listed partners make security decisions based on a presence of a header. Let's try spoofing the identity. This time switch to WIFI and run the following command:
 ```
 curl --request POST http://mtis2.m-transportas.lt/api/token "Content-Type: application/x-www-form-urlencoded" -d "client_id=mticket&CountryCode=310&grant_type=mobileProvider" --header "x-tele2-subid: {your id from previous runs incremented by one}"
 ```
-You will receive the token id for a user with completely different phone number! The services got fooled even though we connected not from a mobile network. While possibly there is no threat in someone spoofing your identity to buy you tickets you wouldn't like to get a bill in the end of a month for a parking or mobile payments (up to 30 Eur) you didn't do. The presence of the special headers cannot be used to prove your identity.
+You will receive the token id for a user with completely different phone number! The service got fooled even though we connected not from a mobile network. While possibly there is no threat in someone spoofing your identity to buy you tickets you wouldn't like to get a bill in the end of a month for a parking or mobile payments (up to 30 Eur) you didn't do. The presence of the special headers cannot be used to prove your identity.
 
-## Conclusions
+### Conclusions
 The HTTP injection is ancient technique from dark ages of internet when most of the traffic was unencrypted (related risks were even published in [2010 by Collin Mulliner](http://www.mulliner.org/security/feed/random_tales_mobile_hacker.pdf)). It should be abandoned as insecure and violating users' privacy. Meanwhile you have the options:
 * Do not use mobile internet.
 * If using mobile internet from a laptop browser, install HTTPS Everywhere extension.
