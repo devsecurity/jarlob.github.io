@@ -62,7 +62,7 @@ In Telia case:
 "x-et-user-identity": "S9zdh■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■KUn3M"
 ```
 ### Things get worse. Partners come into play.
-The host name we used above belongs to one of the white-listed partners. The company have created a web service that returns back a phone number among other things when a request from a mobile internet user is received. Let's try it:
+The host name we used above belongs to one of the white-listed partners. The company has created a web service that returns back a phone number among other things when a request from a mobile internet user is received. Let's try it:
 ```
 curl --request POST http://mtis2.m-transportas.lt/api/token "Content-Type: application/x-www-form-urlencoded" -d "client_id=mticket&CountryCode=310&grant_type=mobileProvider"
 ```
@@ -92,14 +92,14 @@ Works with any Lithuanian mobile provider. Turn off WIFI and click on the link i
 ![Screenshot](mobile-data-leak-poc.png)
 
 ### Does the injected header prove anything?
-So these white-listed partners make security decisions based on a presence of a header. Let's try spoofing the identity. This time switch to WIFI and run the following command:
+So these white-listed partners make security sensitive decisions based on a presence of a header. Let's try spoofing the identity. This time switch to WIFI and run the following command:
 ```
 curl --request POST http://mtis2.m-transportas.lt/api/token "Content-Type: application/x-www-form-urlencoded" -d "client_id=mticket&CountryCode=310&grant_type=mobileProvider" --header "x-tele2-subid: {your id from previous runs incremented by one}"
 ```
 You will receive the token id for a user with completely different phone number! The service got fooled even though we connected not from a mobile network. While possibly there is no threat in someone spoofing your identity to buy you tickets you wouldn't like to get a bill in the end of a month for a parking or mobile payments (up to 30 Eur) you didn't do. The presence of the special headers cannot be used to prove your identity.
 
 ### Conclusions
-The HTTP injection is ancient technique from dark ages of internet when most of the traffic was unencrypted (related risks were even published in [2010 by Collin Mulliner](http://www.mulliner.org/security/feed/random_tales_mobile_hacker.pdf)). It should be abandoned as insecure and violating users' privacy. Meanwhile you have the options:
+The HTTP injection is ancient technique from the dark ages of internet when most of the traffic was unencrypted (related risks were even published in [2010 by Collin Mulliner](http://www.mulliner.org/security/feed/random_tales_mobile_hacker.pdf)). It should be abandoned as insecure and violating users' privacy. Meanwhile you have the options:
 * Do not use mobile internet.
 * If using mobile internet from a laptop browser, install HTTPS Everywhere extension.
 * Always use VPN.
