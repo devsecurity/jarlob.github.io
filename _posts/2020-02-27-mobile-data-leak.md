@@ -23,7 +23,7 @@ An app for online payments, paying in-store and transferring money.
 
 ### How does it work?
 
-It may sound crazy, but the mobile operator injects your identity into the outgoing HTTP request. When a third-party web server receives your request it already contains what is the needed to identify a mobile user in a special HTTP header.
+It may sound crazy, but the mobile operator injects your identity into the outgoing HTTP request. Officially it is called HTTP Header Enrichment. When a third-party web server receives your request it already contains what is the needed to identify a mobile user in a special HTTP header.
 
 Let's check if that is true. First of all we need a server that would reflect back all HTTP headers it received from your browser. It is easy to write one by your own, but since we are lazy we'll use an already [existing one](http://postman-echo.com).
 
@@ -41,7 +41,7 @@ It returns the following response if you are not Tele2 user (showing just the im
   "x-forwarded-port": "80"
 }
 ```
-Nothing is suspicious here. This is because if configured correctly mobile operators inject headers only in a web request to white-listed partners. But not in Tele2 LT case! It injects `"x-tele2-subid: 10.■■■.■■■.■■■` to **any unencrypted HTTP request**!
+Nothing is suspicious here. This is because if configured correctly mobile operators inject headers only in a web request to white-listed partners. But not in Tele2 Lithuania case! It injects `"x-tele2-subid: 10.■■■.■■■.■■■` to **any unencrypted HTTP request**!
 
 You may not see where the issue is... Yet it provides a [super cookie](https://en.wikipedia.org/wiki/HTTP_cookie#Other_uses) for any web site in the world. No matter if you switch the browser, clean cookies, use incognito mode - it uniquely identifies you as the same user. While you may share the same header with other Tele2 users nearby (something to be proved) it still gives a lot of information for a web sites to track you.
 
@@ -96,10 +96,10 @@ So these white-listed partners make security sensitive decisions based on a pres
 ```
 curl --request POST http://mtis2.m-transportas.lt/api/token "Content-Type: application/x-www-form-urlencoded" -d "client_id=mticket&CountryCode=310&grant_type=mobileProvider" --header "x-tele2-subid: {your id from previous runs incremented by one}"
 ```
-You will receive the token id for a user with completely different phone number! The service got fooled even though we connected not from a mobile network. While possibly there is no threat in someone spoofing your identity to buy you tickets you wouldn't like to get a bill in the end of a month for a parking or mobile payments (up to 30 Eur) you didn't do. The presence of the special headers cannot be used to prove your identity.
+You will receive the token id for a user with completely different phone number! The service got fooled even though we connected not from a mobile network. While possibly there is no threat in someone spoofing your identity to buy you tickets, you wouldn't like to get a bill in the end of a month for a parking or mobile payments (up to 50 Eur?) you didn't do. The presence of the special headers cannot be used to prove your identity.
 
 ### Conclusions
-The HTTP injection is ancient technique from the dark ages of internet when most of the traffic was unencrypted (related risks were even published in [2010 by Collin Mulliner](http://www.mulliner.org/security/feed/random_tales_mobile_hacker.pdf)). It should be abandoned as insecure and violating users' privacy. Meanwhile you have the options:
+The HTTP Header Enrichment is an ancient technique from the dark ages of internet when most of the traffic was unencrypted (related risks were even published in [2010 by Collin Mulliner](http://www.mulliner.org/security/feed/random_tales_mobile_hacker.pdf)). It should be abandoned as insecure and violating users' privacy. Meanwhile you have the options:
 * Do not use mobile internet.
 * If using mobile internet from a laptop browser, install HTTPS Everywhere extension.
 * Always use VPN.
