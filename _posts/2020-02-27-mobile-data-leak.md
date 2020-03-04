@@ -9,7 +9,7 @@ cover:
 permalink:  /en/blog/mobile-data-leak
 ---
 > tl;dr: Ignorance of security issues by mobile operator partners leaks your phone number to malicious websites. Misconfigurations of mobile operators allow tracking you worldwide.  
-Try it yourself - [Proof of Concept](/mobile-data-leak#proof-of-concept).
+Try it yourself - [Proof of Concept](/en/blog/mobile-data-leak#proof-of-concept).
 
 It all starts from curiosity... Have you ever seen a mobile app asking you to turn off WIFI and switch to mobile internet in order to use it?  
 There are at least few of them in Lithuania that offer login-less service if you are connected to the mobile internet:
