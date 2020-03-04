@@ -9,7 +9,7 @@ cover:
 permalink:  /en/blog/mobile-data-leak
 ---
 > tl;dr: Ignorance of security issues by mobile operator partners leaks your phone number to malicious websites. Misconfigurations of mobile operators allow tracking you worldwide.  
-Try it yourself - [Proof of Concept](#proof-of-concept).
+Try it yourself - [Proof of Concept](/mobile-data-leak#proof-of-concept).
 
 It all starts from curiosity... Have you ever seen a mobile app asking you to turn off WIFI and switch to mobile internet in order to use it?  
 There are at least few of them in Lithuania that offer login-less service if you are connected to the mobile internet:
@@ -23,7 +23,7 @@ An app for online payments, paying in-store and transferring money.
 
 ### How does it work?
 
-It may sound crazy, but the mobile operator injects your identity into the outgoing HTTP request. Officially it is called HTTP Header Enrichment. When a third-party web server receives your request it already contains what is the needed to identify a mobile user in a special HTTP header.
+It may sound crazy, but the mobile operator injects your identity into the outgoing HTTP request. Officially it is called HTTP Header Enrichment. When a third-party web server receives your request it already contains what is needed to identify the mobile user in a special HTTP header.
 
 Let's check if that is true. First of all we need a server that would reflect back all HTTP headers it received from your browser. It is easy to write one by your own, but since we are lazy we'll use an already [existing one](http://postman-echo.com).
 
