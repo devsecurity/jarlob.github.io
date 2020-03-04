@@ -86,7 +86,7 @@ The response:
 The service is public and the first line leaks your phone number. How could it be exploited?  
 A malicious web page may run a javascript that calls mtis2.m-transportas.lt on your behalf. But if your provider is Tele2 it is even worse: `x-tele2-subid` gets injected into all unencrypted web site requests. So a malicious site may call mtis2.m-transportas.lt with the leaked `x-tele2-subid` and retrieve the phone number on the server side. This way it is impossible to detect the abuse from the client!
 ### Proof of concept:
-Works with any Lithuanian mobile provider. Turn off WIFI and click on the link in your mobile device.
+Works with any Lithuanian mobile provider (*Update 2020-03-04: Tele2 is working on the fix and has disabled phone number resolution service for mtis2.m-transportas.lt*). Turn off WIFI and click on the link in your mobile device.
 [http://www.devsecurity.eu/mobile-data-leak/](http://www.devsecurity.eu/mobile-data-leak/)
 
 ![Screenshot](mobile-data-leak-poc.png)
